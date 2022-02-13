@@ -21,7 +21,6 @@ class BaseController extends Controller
             'message' => $message,
         ];
 
-
         return response()->json($response, 200);
     }
 
@@ -38,11 +37,9 @@ class BaseController extends Controller
             'message' => $error,
         ];
 
-
         if (!empty($errorMessages)) {
             $response['data'] = $errorMessages;
         }
-
 
         return response()->json($response, $code);
     }

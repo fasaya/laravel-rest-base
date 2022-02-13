@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\BaseController as BaseController;
+use App\Http\Resources\Product as ProductResource;
 
 class ProductController extends BaseController
 {
@@ -18,8 +19,7 @@ class ProductController extends BaseController
     public function index()
     {
         $products = Product::all();
-
-        return $this->sendResponse($products, 'Product list retrieved successfully.');
+        return $this->sendResponse(ProductResource::collection($products), 'Products list retrieved successfully.');
     }
 
     /**
@@ -40,7 +40,7 @@ class ProductController extends BaseController
         }
         $product = Product::create($input);
 
-        return $this->sendResponse($product, 'Product created successfully.');
+        return $this->sendResponse(new ProductResource($product), 'Product created successfully.');
     }
 
     /**
@@ -55,7 +55,8 @@ class ProductController extends BaseController
         if (is_null($product)) {
             return $this->sendError('Product not found.');
         }
-        return $this->sendResponse($product, 'Product retrieved successfully.');
+
+        return $this->sendResponse(new ProductResource($product), 'Product retrieved successfully.');
     }
 
     /**
@@ -70,16 +71,18 @@ class ProductController extends BaseController
         $input = $request->all();
         $validator = Validator::make($input, [
             'name' => 'required',
-            'detail' => 'required'
+            'description' => 'required'
         ]);
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
+
+        $product = Product::find($id);
         $product->name = $input['name'];
-        $product->detail = $input['detail'];
+        $product->description = $input['description'];
         $product->save();
 
-        return $this->sendResponse($product, 'Product updated successfully.');
+        return $this->sendResponse(new ProductResource($product), 'Product updated successfully.');
     }
 
     /**
@@ -90,7 +93,7 @@ class ProductController extends BaseController
      */
     public function destroy($id)
     {
-        $product->delete();
-        return $this->sendResponse($product, 'Product deleted successfully.');
+        Product::find($id)->delete();
+        return $this->sendResponse([], 'Product deleted successfully.');
     }
 }
